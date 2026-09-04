@@ -96,3 +96,71 @@ st.plotly_chart(fig_treemap, use_container_width=True)
 st.markdown("**이 그래프로 알 수 있는 것:** ")
 
 st.divider()
+
+# ------------------------------------------------------------
+# 그래프 3. 총 관객 히스토그램
+# ------------------------------------------------------------
+st.header("3. 총 관객수 분포")
+
+N_BINS = 20
+
+fig_hist = px.histogram(
+    df,
+    x="total_audi",
+    nbins=N_BINS,
+)
+fig_hist.update_traces(
+    hovertemplate="관객 구간: %{x}<br>영화 수: %{y}편<extra></extra>",
+)
+fig_hist.update_layout(
+    xaxis_title="총 관객 수(명)",
+    yaxis_title="영화 편수",
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_hist, use_container_width=True)
+
+# 대부분의 영화가 몰려 있는 구간 계산
+bin_edges = pd.cut(df["total_audi"], bins=N_BINS)
+most_common_bin = bin_edges.value_counts().idxmax()
+bin_movie_count = bin_edges.value_counts().max()
+
+# 가장 관객이 많은 영화 계산
+top_movie_row = df.loc[df["total_audi"].idxmax()]
+
+st.markdown(
+    f"**이 그래프로 알 수 있는 것:** 대부분의 영화는 총 관객 "
+    f"**{most_common_bin.left:,.0f}명 ~ {most_common_bin.right:,.0f}명** 구간에 "
+    f"**{bin_movie_count}편**이 몰려 있으며, 가장 관객이 많은 영화는 "
+    f"**'{top_movie_row['movieNm']}'**로 총 **{top_movie_row['total_audi']:,}명**을 동원했다."
+)
+
+st.divider()
+
+# ------------------------------------------------------------
+# 그래프 4. 개봉일 스크린수 vs 총 관객 - 산점도 (색: 장르)
+# ------------------------------------------------------------
+st.header("4. 개봉일 스크린수와 총 관객의 관계")
+
+fig_scatter = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    color="genre",
+    custom_data=["movieNm"],
+)
+fig_scatter.update_traces(
+    hovertemplate="영화명: %{customdata[0]}<br>개봉일 스크린수: %{x:,}개<br>총 관객: %{y:,}명<extra></extra>",
+)
+fig_scatter.update_layout(
+    xaxis_title="개봉일 스크린수(개)",
+    yaxis_title="총 관객 수(명)",
+    legend_title_text="장르",
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_scatter, use_container_width=True)
+
+st.markdown("**이 그래프로 알 수 있는 것:** ")
+
+st.divider()
