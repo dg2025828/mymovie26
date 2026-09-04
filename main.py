@@ -261,3 +261,43 @@ st.plotly_chart(fig_sunburst, use_container_width=True)
 st.markdown("**이 그래프로 알 수 있는 것:** ")
 
 st.divider()
+
+# ------------------------------------------------------------
+# 그래프 8. 애니메이션 장르 - 총 관객 상위 영화 막대 그래프
+# ------------------------------------------------------------
+st.header("8. 애니메이션 영화 흥행 순위")
+
+TOP_N = 10
+
+df_animation = df[df["genre"] == "애니메이션"].sort_values(
+    "total_audi", ascending=False
+)
+df_animation_top = df_animation.head(TOP_N)
+
+fig_animation = px.bar(
+    df_animation_top,
+    x="total_audi",
+    y="movieNm",
+    orientation="h",
+    custom_data=["movieNm"],
+)
+fig_animation.update_traces(
+    hovertemplate="영화명: %{customdata[0]}<br>총 관객: %{x:,}명<extra></extra>",
+)
+fig_animation.update_layout(
+    xaxis_title="총 관객 수(명)",
+    yaxis_title="영화명",
+    yaxis=dict(categoryorder="total ascending"),
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_animation, use_container_width=True)
+
+top_animation_row = df_animation.iloc[0]
+
+st.markdown(
+    f"**이 그래프로 알 수 있는 것:** 애니메이션 영화 중 총 관객이 가장 많았던 영화는 "
+    f"**'{top_animation_row['movieNm']}'**로, 총 **{top_animation_row['total_audi']:,}명**을 동원했다."
+)
+
+st.divider()
