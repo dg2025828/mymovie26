@@ -164,3 +164,100 @@ st.plotly_chart(fig_scatter, use_container_width=True)
 st.markdown("**이 그래프로 알 수 있는 것:** ")
 
 st.divider()
+
+# ------------------------------------------------------------
+# 그래프 5. 장르별 총 관객 - 박스플롯 (영화 10편 이상 장르만)
+# ------------------------------------------------------------
+st.header("5. 장르별 총 관객 분포 (10편 이상인 장르)")
+
+genre_movie_counts = df["genre"].value_counts()
+major_genres = genre_movie_counts[genre_movie_counts >= 10].index
+df_major = df[df["genre"].isin(major_genres)]
+
+fig_box = px.box(
+    df_major,
+    x="genre",
+    y="total_audi",
+    color="genre",
+    points="outliers",
+    custom_data=["movieNm"],
+)
+fig_box.update_traces(
+    hovertemplate="영화명: %{customdata[0]}<br>총 관객: %{y:,}명<extra></extra>",
+)
+fig_box.update_layout(
+    xaxis_title="장르",
+    yaxis_title="총 관객 수(명)",
+    showlegend=False,
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_box, use_container_width=True)
+
+st.markdown("**이 그래프로 알 수 있는 것:** ")
+
+st.divider()
+
+# ------------------------------------------------------------
+# 그래프 6. 개봉일 스크린수 vs 총 관객 - 버블 차트
+#           (점 크기: 첫 주 관객, 색: 장르)
+# ------------------------------------------------------------
+st.header("6. 개봉일 스크린수와 총 관객의 관계 (버블 크기: 첫 주 관객)")
+
+fig_bubble = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    size="first_week_audi",
+    color="genre",
+    custom_data=["movieNm", "first_week_audi"],
+)
+fig_bubble.update_traces(
+    hovertemplate=(
+        "영화명: %{customdata[0]}<br>"
+        "개봉일 스크린수: %{x:,}개<br>"
+        "총 관객: %{y:,}명<br>"
+        "첫 주 관객: %{customdata[1]:,}명<extra></extra>"
+    ),
+)
+fig_bubble.update_layout(
+    xaxis_title="개봉일 스크린수(개)",
+    yaxis_title="총 관객 수(명)",
+    legend_title_text="장르",
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_bubble, use_container_width=True)
+
+st.markdown("**이 그래프로 알 수 있는 것:** ")
+
+st.divider()
+
+# ------------------------------------------------------------
+# 그래프 7. 제작 국가 -> 장르 - 선버스트 (칸 크기: 영화 편수)
+# ------------------------------------------------------------
+st.header("7. 제작 국가별 장르 분포 (선버스트)")
+
+nation_genre_counts = (
+    df.groupby(["nation", "genre"])
+    .size()
+    .reset_index(name="count")
+)
+
+fig_sunburst = px.sunburst(
+    nation_genre_counts,
+    path=["nation", "genre"],
+    values="count",
+)
+fig_sunburst.update_traces(
+    hovertemplate="%{label}<br>영화 편수: %{value}편<extra></extra>",
+)
+fig_sunburst.update_layout(
+    margin=dict(t=30, b=30, l=0, r=0),
+)
+
+st.plotly_chart(fig_sunburst, use_container_width=True)
+
+st.markdown("**이 그래프로 알 수 있는 것:** ")
+
+st.divider()
